@@ -14,7 +14,9 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.marvelcharapp.R
 import com.example.marvelcharapp.databinding.FragmentMainBinding
+import com.example.marvelcharapp.presentation.base.ErrorUI
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.android.synthetic.main.error_view.view.*
 
 @AndroidEntryPoint
 class MainFragment : Fragment(), MainAdapter.OnItemClicked {
@@ -25,7 +27,6 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
     private val binding get() = _binding!!
 
     private val mainAdapter = MainAdapter(mutableListOf(), this)
-    private var isLoading = true
     private var totalOffset = 0
     private val OFFSET = 20
 
@@ -47,11 +48,14 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
     private fun setupObservers() {
         mainViewModel.characterList.observe(viewLifecycleOwner, Observer {
             mainAdapter.updateList(it)
-            isLoading = false
         })
 
         mainViewModel.error.observe(viewLifecycleOwner, Observer {
+            mapError(it)
+        })
 
+        mainViewModel.loading.observe(viewLifecycleOwner, Observer {
+            showLoader(it)
         })
     }
 
@@ -70,6 +74,9 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
                 }
             })
         }
+        binding.errorView.reloadButton.setOnClickListener {
+            mainViewModel.getCharacterList(0)
+        }
     }
 
     private fun setUpScrollLoader(layoutManager: GridLayoutManager) {
@@ -77,11 +84,30 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
         val scrolledItems = layoutManager.findFirstCompletelyVisibleItemPosition()
         val totalCount = layoutManager.itemCount
 
-        if (!isLoading) {
+        if (!mainViewModel.loading.value!!) {
             if ((visibleItemCount + scrolledItems) >= totalCount) {
                 totalOffset += OFFSET
                 mainViewModel.getCharacterList(totalOffset)
-                isLoading = true
+            }
+        }
+    }
+
+    private fun showLoader(show: Boolean) {
+        if (show)
+            binding.progressBar.visibility = View.VISIBLE
+        else
+            binding.progressBar.visibility = View.GONE
+    }
+
+    private fun mapError(error: ErrorUI) {
+        when (error) {
+            is ErrorUI.ConnectionError -> binding.errorView.apply {
+                root.visibility = View.VISIBLE
+                root.errorText.text = getString(R.string.connection_error)
+            }
+            else -> binding.errorView.apply {
+                root.visibility = View.VISIBLE
+                root.errorText.text = error.message
             }
         }
     }

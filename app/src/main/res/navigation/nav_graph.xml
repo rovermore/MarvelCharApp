@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/MainFragment">
+
+    <fragment
+        android:id="@+id/MainFragment"
+        android:name="com.example.marvelcharapp.presentation.main.MainFragment"
+        android:label="fragment_main"
+        tools:layout="@layout/fragment_main">
+
+        <action
+            android:id="@+id/action_MainFragment_to_DetailFragment"
+            app:destination="@id/DetailFragment"
+            app:popUpTo="@id/MainFragment">
+            <argument
+                android:name="myArg"
+                app:argType="integer"
+                android:defaultValue="1"/>
+        </action>
+    </fragment>
+    <fragment
+        android:id="@+id/DetailFragment"
+        android:name="com.example.marvelcharapp.presentation.detail.DetailFragment"
+        android:label="fragment_detail"
+        tools:layout="@layout/fragment_detail"/>
+
+</navigation>

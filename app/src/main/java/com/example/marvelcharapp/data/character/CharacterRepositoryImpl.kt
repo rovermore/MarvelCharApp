@@ -13,10 +13,23 @@ class CharacterRepositoryImpl @Inject constructor(
     private val apiErrorMapper: APIErrorMapper,
     private val characterResponseMapper: CharacterResponseMapper
 ): CharacterRepository {
+
     override fun getCharacterList(offset: Int): OperationResult<List<CharacterDTO>, Error> {
         return characterNetworkDatasource.getCharacterList(offset)
             .map {
                 return Success(characterResponseMapper.mapList(it.data?.results))
+            }
+            .mapFailure {
+                return Failure(apiErrorMapper.map(it))
+            }
+    }
+
+    override fun getCharacter(id: String): OperationResult<CharacterDTO, Error> {
+        return characterNetworkDatasource.getCharacter(id)
+            .map { response ->
+                response.data?.results?.let {
+                    return Success(characterResponseMapper.map(it[0]))
+                } ?: return Failure(Error.UncompletedOperation("Could not map the character"))
             }
             .mapFailure {
                 return Failure(apiErrorMapper.map(it))

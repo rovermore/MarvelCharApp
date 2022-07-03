@@ -1,4 +1,4 @@
-package com.example.marvelcharapp.presentation.main
+package com.example.marvelcharapp.presentation.detail
 
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
@@ -9,20 +9,22 @@ import com.example.marvelcharapp.domain.base.mapFailure
 import com.example.marvelcharapp.domain.character.usecase.CharacterUseCase
 import com.example.marvelcharapp.presentation.base.ErrorUI
 import com.example.marvelcharapp.presentation.base.ErrorUIMapper
+import com.example.marvelcharapp.presentation.main.CharacterUIModel
+import com.example.marvelcharapp.presentation.main.CharacterUIModelMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class MainViewModel @Inject constructor(
+class DetailViewModel @Inject constructor(
     private val characterUseCase: CharacterUseCase,
     private val characterUIModelMapper: CharacterUIModelMapper,
     private val errorUIMapper: ErrorUIMapper
 ) : ViewModel() {
 
-    private val _characterList: MutableLiveData<List<CharacterUIModel>> = MutableLiveData()
-    val characterList: LiveData<List<CharacterUIModel>> get() = _characterList
+    private val _character: MutableLiveData<CharacterUIModel> = MutableLiveData()
+    val character: LiveData<CharacterUIModel> get() = _character
 
     private val _error: MutableLiveData<ErrorUI> = MutableLiveData()
     val error: LiveData<ErrorUI> get() = _error
@@ -32,12 +34,12 @@ class MainViewModel @Inject constructor(
 
 
 
-    fun getCharacterList(offset: Int) {
+    fun getCharacter(id: String) {
         viewModelScope.launch(Dispatchers.IO) {
             _loading.postValue(true)
-            characterUseCase.getCharacterList(offset)
+            characterUseCase.getCharacter(id)
                 .map {
-                   _characterList.postValue(characterUIModelMapper.mapList(it))
+                    _character.postValue(characterUIModelMapper.map(it))
                     _loading.postValue(false)
                 }
                 .mapFailure {

@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">MarvelCharApp</string>
+    <string name="error_string">Error al recuperar los datos</string>
+    <string name="reload">Reload</string>
+    <string name="comments">Comments</string>
+    <string name="connection_error">Could not make connection with server</string>
+</resources>

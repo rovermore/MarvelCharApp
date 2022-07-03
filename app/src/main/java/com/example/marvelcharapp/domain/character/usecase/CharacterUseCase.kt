@@ -11,6 +11,10 @@ class CharacterUseCase @Inject constructor(
 ) {
 
     fun getCharacterList(offset: Int): OperationResult<List<CharacterDTO>, Error> {
-        return characterRepository.getCharacterList()
+        return characterRepository.getCharacterList(offset)
+    }
+
+    fun getCharacter(id: String): OperationResult<CharacterDTO, Error> {
+        return characterRepository.getCharacter(id)
     }
 }
