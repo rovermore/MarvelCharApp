@@ -16,8 +16,11 @@ class CharacterRepositoryImpl @Inject constructor(
 
     override fun getCharacterList(offset: Int): OperationResult<List<CharacterDTO>, Error> {
         return characterNetworkDatasource.getCharacterList(offset)
-            .map {
-                return Success(characterResponseMapper.mapList(it.data?.results))
+            .map { response ->
+                response.data?.let {
+                    return Success(characterResponseMapper.mapList(it.results))
+                } ?: return Failure(Error.UncompletedOperation("Could not map the character list"))
+
             }
             .mapFailure {
                 return Failure(apiErrorMapper.map(it))
