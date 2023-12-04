@@ -16,7 +16,6 @@ import com.example.marvelcharapp.R
 import com.example.marvelcharapp.databinding.FragmentMainBinding
 import com.example.marvelcharapp.presentation.base.ErrorUI
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.error_view.view.*
 
 @AndroidEntryPoint
 class MainFragment : Fragment(), MainAdapter.OnItemClicked {
@@ -103,11 +102,11 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
         when (error) {
             is ErrorUI.ConnectionError -> binding.errorView.apply {
                 root.visibility = View.VISIBLE
-                root.errorText.text = getString(R.string.connection_error)
+                //root.errorText.text = getString(R.string.connection_error)
             }
             else -> binding.errorView.apply {
                 root.visibility = View.VISIBLE
-                root.errorText.text = error.message
+                //root.errorText.text = error.message
             }
         }
     }

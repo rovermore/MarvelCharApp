@@ -13,7 +13,6 @@ import com.example.marvelcharapp.presentation.base.ErrorUI
 import com.example.marvelcharapp.presentation.main.CharacterUIModel
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.android.synthetic.main.error_view.view.*
 
 @AndroidEntryPoint
 class DetailFragment : Fragment() {
@@ -58,11 +57,11 @@ class DetailFragment : Fragment() {
         when (error) {
             is ErrorUI.ConnectionError -> binding.detailErrorView.apply {
                 root.visibility = View.VISIBLE
-                root.errorText.text = getString(R.string.connection_error)
+                //root.errorText.text = getString(R.string.connection_error)
             }
             else -> binding.detailErrorView.apply {
                 root.visibility = View.VISIBLE
-                root.errorText.text = error.message
+                //root.errorText.text = error.message
             }
         }
     }
