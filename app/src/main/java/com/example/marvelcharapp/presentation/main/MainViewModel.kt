@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.marvelcharapp.domain.base.map
 import com.example.marvelcharapp.domain.base.mapFailure
+import com.example.marvelcharapp.domain.base.then
 import com.example.marvelcharapp.domain.character.usecase.CharacterUseCase
 import com.example.marvelcharapp.presentation.base.ErrorUI
 import com.example.marvelcharapp.presentation.base.ErrorUIMapper
@@ -22,10 +23,10 @@ class MainViewModel @Inject constructor(
     private val errorUIMapper: ErrorUIMapper
 ) : ViewModel() {
 
-    private val _characterList = MutableStateFlow<List<CharacterUIModel>>(emptyList())
-    val characterList: StateFlow<List<CharacterUIModel>> get() = _characterList.asStateFlow()
+    private val _characterList = MutableStateFlow<MutableList<CharacterUIModel>>(mutableListOf())
+    val characterList: StateFlow<MutableList<CharacterUIModel>> get() = _characterList.asStateFlow()
 
-    private val _error = MutableStateFlow<ErrorUI>(ErrorUI.GenericError(""))
+    private val _error = MutableStateFlow<ErrorUI>(ErrorUI.None)
     val error: StateFlow<ErrorUI> get() = _error.asStateFlow()
 
     private val _loading = MutableStateFlow<Boolean>(false)
@@ -33,7 +34,7 @@ class MainViewModel @Inject constructor(
 
 
     init {
-        getCharacterList(20)
+        getCharacterList(30)
     }
 
     fun getCharacterList(offset: Int) {
@@ -41,11 +42,11 @@ class MainViewModel @Inject constructor(
             _loading.value = true
             characterUseCase.getCharacterList(offset)
                 .map {
-                   _characterList.value = characterUIModelMapper.mapList(it)
-                    _loading.value = false
+                   _characterList.value.addAll(characterUIModelMapper.mapList(it))
                 }
                 .mapFailure {
                     _error.value = errorUIMapper.map(it)
+                }.then {
                     _loading.value = false
                 }
         }

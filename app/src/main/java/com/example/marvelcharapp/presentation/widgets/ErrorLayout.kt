@@ -21,9 +21,11 @@ import com.example.marvelcharapp.R
 
 @Composable
 fun ErrorView(
+    modifier: Modifier = Modifier,
     onReloadCLicked: () -> Unit
 ) {
     Column(
+        modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
 
