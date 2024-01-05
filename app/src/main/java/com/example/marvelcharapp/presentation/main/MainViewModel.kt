@@ -36,6 +36,9 @@ class MainViewModel @Inject constructor(
     private val _loading = mutableStateOf<Boolean>(true)
     val loading: State<Boolean> get() = _loading
 
+    private val _characterState = mutableStateOf<CharactersState>(CharactersState.Loading)
+    val characterState: State<CharactersState> get() = _characterState
+
 
     init {
         getCharacterList(20)
@@ -43,17 +46,22 @@ class MainViewModel @Inject constructor(
 
     fun getCharacterList(offset: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { _loading.value = true }
+            withContext(Dispatchers.Main) { _characterState.value = CharactersState.Loading }
             characterUseCase.getCharacterList(offset)
                 .map {
-                    _characterList.addAll(characterUIModelMapper.mapList(it))
+                    _characterState.value = CharactersState.Success.apply { characterList.addAll(characterUIModelMapper.mapList(it)) }
                 }
                 .mapFailure {
-                    _error.value = errorUIMapper.map(it)
-                }.then {
-                    _loading.value = false
+                    _characterState.value = CharactersState.Error(errorUIMapper.map(it))
                 }
         }
+    }
+
+
+    sealed class CharactersState {
+        data object Success: CharactersState() { val characterList = mutableListOf<CharacterUIModel>() }
+        data class Error(val error: ErrorUI): CharactersState()
+        data object Loading: CharactersState()
     }
 
 }

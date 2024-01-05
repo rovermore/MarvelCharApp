@@ -27,9 +27,11 @@ class MainFragment : Fragment(), MainAdapter.OnItemClicked {
     ): View {
         return ComposeView(requireContext()).apply {
             setContent {
-                MainFragmentView{
-                    itemClicked(it)
-                }
+                MainFragmentView(
+                    onCharacterClicked = { itemClicked(it) }
+                )
+
+
             }
         }
     }

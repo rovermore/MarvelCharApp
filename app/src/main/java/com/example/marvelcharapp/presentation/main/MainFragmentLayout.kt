@@ -10,6 +10,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.State
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
@@ -19,22 +20,27 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.marvelcharapp.presentation.base.ErrorUI
 import com.example.marvelcharapp.presentation.widgets.ErrorView
-import java.util.Collections.addAll
 
 @Composable
-fun MainFragmentView(onCharacterClicked: (CharacterUIModel) -> Unit) {
-    MainFragmentMainView(onCharacterClicked)
+fun MainFragmentView(
+    onCharacterClicked: (CharacterUIModel) -> Unit,
+    viewModel: MainViewModel = viewModel()
+    ) {
+    MainFragmentMainView(onCharacterClicked, viewModel.characterState) { offset ->
+        viewModel.getCharacterList(offset)
+    }
 }
 
 @Composable
 fun MainFragmentMainView(
     onCharacterClicked: (CharacterUIModel) -> Unit,
-    viewModel: MainViewModel = viewModel()
+    state: State<MainViewModel.CharactersState>,
+    fetchMoreCharacters: (Int) -> Unit
 ) {
     val listState = rememberLazyListState()
     var offset by rememberSaveable { mutableIntStateOf(20) }
@@ -47,36 +53,44 @@ fun MainFragmentMainView(
     LaunchedEffect(isEndOfScroll){
         if(isEndOfScroll) {
             offset += 20
-            viewModel.getCharacterList(offset)
+            fetchMoreCharacters(offset)
         }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (viewModel.loading.value)
-            CircularProgressIndicator(
-                modifier = Modifier
-                    .width(32.dp)
-                    .align(Alignment.Center)
-            )
-        if (viewModel.characterList.isNotEmpty())
-            LazyColumn(
-                modifier = Modifier.fillMaxHeight(),
-                state = listState
-            ) {
-                items(viewModel.characterList) { character ->
-                    CharacterItem(character, onCharacterClicked)
+        when (val s = state.value) {
+            MainViewModel.CharactersState.Loading ->
+                CircularProgressIndicator(
+                    modifier = Modifier
+                        .width(32.dp)
+                        .align(Alignment.Center)
+                )
+
+            is MainViewModel.CharactersState.Success ->
+                LazyColumn(
+                    modifier = Modifier.fillMaxHeight(),
+                    state = listState
+                ) {
+                    items(s.characterList) { character ->
+                        CharacterItem(character, onCharacterClicked)
+                    }
                 }
-            }
-        if (viewModel.error.value !is ErrorUI.None)
-            ErrorView(
-                modifier = Modifier.align(Alignment.Center)
-            ) { viewModel.getCharacterList(20) }
+
+            is MainViewModel.CharactersState.Error ->
+                ErrorView(
+                    modifier = Modifier.align(Alignment.Center)
+                ) { fetchMoreCharacters(20) }
+        }
     }
 }
 
-/*
-@Preview(widthDp = 340, showBackground = true , backgroundColor = 0xff0100)
+
+@Preview(widthDp = 340, showBackground = true , backgroundColor = 0xFFFFFF)
 @Composable
 fun MainFragmentPreview() {
-    MainFragmentView {}
-}*/
+    MainFragmentMainView(
+        onCharacterClicked = {},
+        state = remember { mutableStateOf<MainViewModel.CharactersState>(MainViewModel.CharactersState.Error(ErrorUI.GenericError(""))) },
+        fetchMoreCharacters = {}
+    )
+}
