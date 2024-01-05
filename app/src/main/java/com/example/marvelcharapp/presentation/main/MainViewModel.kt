@@ -1,5 +1,8 @@
 package com.example.marvelcharapp.presentation.main
 
+import androidx.compose.runtime.State
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.marvelcharapp.domain.base.map
@@ -14,6 +17,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,26 +27,26 @@ class MainViewModel @Inject constructor(
     private val errorUIMapper: ErrorUIMapper
 ) : ViewModel() {
 
-    private val _characterList = MutableStateFlow<MutableList<CharacterUIModel>>(mutableListOf())
-    val characterList: StateFlow<MutableList<CharacterUIModel>> get() = _characterList.asStateFlow()
+    private val _characterList = mutableStateListOf<CharacterUIModel>()
+    val characterList: List<CharacterUIModel> get() = _characterList
 
-    private val _error = MutableStateFlow<ErrorUI>(ErrorUI.None)
-    val error: StateFlow<ErrorUI> get() = _error.asStateFlow()
+    private val _error = mutableStateOf<ErrorUI>(ErrorUI.None)
+    val error: State<ErrorUI> get() = _error
 
-    private val _loading = MutableStateFlow<Boolean>(false)
-    val loading: StateFlow<Boolean> get() = _loading.asStateFlow()
+    private val _loading = mutableStateOf<Boolean>(true)
+    val loading: State<Boolean> get() = _loading
 
 
     init {
-        getCharacterList(30)
+        getCharacterList(20)
     }
 
     fun getCharacterList(offset: Int) {
         viewModelScope.launch(Dispatchers.IO) {
-            _loading.value = true
+            withContext(Dispatchers.Main) { _loading.value = true }
             characterUseCase.getCharacterList(offset)
                 .map {
-                   _characterList.value.addAll(characterUIModelMapper.mapList(it))
+                    _characterList.addAll(characterUIModelMapper.mapList(it))
                 }
                 .mapFailure {
                     _error.value = errorUIMapper.map(it)

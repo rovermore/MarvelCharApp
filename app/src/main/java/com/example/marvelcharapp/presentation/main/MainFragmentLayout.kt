@@ -6,13 +6,15 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.CircularProgressIndicator
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -22,11 +24,10 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.marvelcharapp.presentation.base.ErrorUI
 import com.example.marvelcharapp.presentation.widgets.ErrorView
+import java.util.Collections.addAll
 
 @Composable
-fun MainFragmentView(
-    onCharacterClicked: (CharacterUIModel) -> Unit
-) {
+fun MainFragmentView(onCharacterClicked: (CharacterUIModel) -> Unit) {
     MainFragmentMainView(onCharacterClicked)
 }
 
@@ -35,38 +36,41 @@ fun MainFragmentMainView(
     onCharacterClicked: (CharacterUIModel) -> Unit,
     viewModel: MainViewModel = viewModel()
 ) {
-    val characterList by viewModel.characterList.collectAsStateWithLifecycle()
-    val loading by viewModel.loading.collectAsStateWithLifecycle()
-    val error by viewModel.error.collectAsStateWithLifecycle()
-
-    var offset by rememberSaveable { mutableIntStateOf(30) }
-
     val listState = rememberLazyListState()
+    var offset by rememberSaveable { mutableIntStateOf(20) }
+    val isEndOfScroll by remember {
+        derivedStateOf {
+            !listState.canScrollForward
+        }
+    }
+
+    LaunchedEffect(isEndOfScroll){
+        if(isEndOfScroll) {
+            offset += 20
+            viewModel.getCharacterList(offset)
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
-        if (loading)
+        if (viewModel.loading.value)
             CircularProgressIndicator(
                 modifier = Modifier
                     .width(32.dp)
                     .align(Alignment.Center)
             )
-        if (characterList.isNotEmpty())
+        if (viewModel.characterList.isNotEmpty())
             LazyColumn(
                 modifier = Modifier.fillMaxHeight(),
                 state = listState
             ) {
-                items(characterList) { character ->
+                items(viewModel.characterList) { character ->
                     CharacterItem(character, onCharacterClicked)
-                    if (!listState.canScrollForward) {
-                        offset += 30
-                        viewModel.getCharacterList(offset)
-                    }
                 }
             }
-        if (error !is ErrorUI.None)
+        if (viewModel.error.value !is ErrorUI.None)
             ErrorView(
                 modifier = Modifier.align(Alignment.Center)
-            ) { viewModel.getCharacterList(30) }
+            ) { viewModel.getCharacterList(20) }
     }
 }
 
