@@ -27,18 +27,8 @@ class MainViewModel @Inject constructor(
     private val errorUIMapper: ErrorUIMapper
 ) : ViewModel() {
 
-    private val _characterList = mutableStateListOf<CharacterUIModel>()
-    val characterList: List<CharacterUIModel> get() = _characterList
-
-    private val _error = mutableStateOf<ErrorUI>(ErrorUI.None)
-    val error: State<ErrorUI> get() = _error
-
-    private val _loading = mutableStateOf<Boolean>(true)
-    val loading: State<Boolean> get() = _loading
-
     private val _characterState = mutableStateOf<CharactersState>(CharactersState.Loading)
     val characterState: State<CharactersState> get() = _characterState
-
 
     init {
         getCharacterList(20)
