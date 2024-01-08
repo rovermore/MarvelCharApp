@@ -39,7 +39,7 @@ fun MainFragmentView(
 @Composable
 fun MainFragmentMainView(
     onCharacterClicked: (CharacterUIModel) -> Unit,
-    state: State<MainViewModel.CharactersState>,
+    state: State<CharactersState>,
     fetchMoreCharacters: (Int) -> Unit
 ) {
     val listState = rememberLazyListState()
@@ -59,14 +59,14 @@ fun MainFragmentMainView(
 
     Box(modifier = Modifier.fillMaxSize()) {
         when (val s = state.value) {
-            MainViewModel.CharactersState.Loading ->
+            CharactersState.Loading ->
                 CircularProgressIndicator(
                     modifier = Modifier
                         .width(32.dp)
                         .align(Alignment.Center)
                 )
 
-            is MainViewModel.CharactersState.Success ->
+            is CharactersState.Success ->
                 LazyColumn(
                     modifier = Modifier.fillMaxHeight(),
                     state = listState
@@ -76,7 +76,7 @@ fun MainFragmentMainView(
                     }
                 }
 
-            is MainViewModel.CharactersState.Error ->
+            is CharactersState.Error ->
                 ErrorView(
                     modifier = Modifier.align(Alignment.Center)
                 ) { fetchMoreCharacters(20) }
@@ -90,7 +90,7 @@ fun MainFragmentMainView(
 fun MainFragmentPreview() {
     MainFragmentMainView(
         onCharacterClicked = {},
-        state = remember { mutableStateOf<MainViewModel.CharactersState>(MainViewModel.CharactersState.Error(ErrorUI.GenericError(""))) },
+        state = remember { mutableStateOf<CharactersState>(CharactersState.Error(ErrorUI.GenericError(""))) },
         fetchMoreCharacters = {}
     )
 }

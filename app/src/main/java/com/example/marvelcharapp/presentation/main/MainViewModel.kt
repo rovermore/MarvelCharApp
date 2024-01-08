@@ -46,12 +46,10 @@ class MainViewModel @Inject constructor(
                 }
         }
     }
+}
 
-
-    sealed class CharactersState {
-        data object Success: CharactersState() { val characterList = mutableListOf<CharacterUIModel>() }
-        data class Error(val error: ErrorUI): CharactersState()
-        data object Loading: CharactersState()
-    }
-
+sealed class CharactersState {
+    data object Success: CharactersState() { val characterList = mutableListOf<CharacterUIModel>() }
+    data class Error(val error: ErrorUI): CharactersState()
+    data object Loading: CharactersState()
 }
