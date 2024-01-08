@@ -31,13 +31,13 @@ fun MainFragmentView(
     onCharacterClicked: (CharacterUIModel) -> Unit,
     viewModel: MainViewModel = viewModel()
     ) {
-    MainFragmentMainView(onCharacterClicked, viewModel.characterState) { offset ->
+    Content(onCharacterClicked, viewModel.characterState) { offset ->
         viewModel.getCharacterList(offset)
     }
 }
 
 @Composable
-fun MainFragmentMainView(
+private fun Content(
     onCharacterClicked: (CharacterUIModel) -> Unit,
     state: State<CharactersState>,
     fetchMoreCharacters: (Int) -> Unit
@@ -87,8 +87,8 @@ fun MainFragmentMainView(
 
 @Preview(widthDp = 340, showBackground = true , backgroundColor = 0xFFFFFF)
 @Composable
-fun MainFragmentPreview() {
-    MainFragmentMainView(
+private fun MainFragmentPreview() {
+    Content(
         onCharacterClicked = {},
         state = remember { mutableStateOf<CharactersState>(CharactersState.Error(ErrorUI.GenericError(""))) },
         fetchMoreCharacters = {}
