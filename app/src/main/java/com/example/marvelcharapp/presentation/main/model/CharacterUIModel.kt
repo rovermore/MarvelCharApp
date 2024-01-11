@@ -1,4 +1,4 @@
-package com.example.marvelcharapp.presentation.main
+package com.example.marvelcharapp.presentation.main.model
 
 data class CharacterUIModel(
     val id: Int = 0,

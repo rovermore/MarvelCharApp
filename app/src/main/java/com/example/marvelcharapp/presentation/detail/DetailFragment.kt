@@ -10,7 +10,7 @@ import androidx.lifecycle.Observer
 import com.example.marvelcharapp.R
 import com.example.marvelcharapp.databinding.FragmentDetailBinding
 import com.example.marvelcharapp.presentation.base.ErrorUI
-import com.example.marvelcharapp.presentation.main.CharacterUIModel
+import com.example.marvelcharapp.presentation.main.model.CharacterUIModel
 import com.squareup.picasso.Picasso
 import dagger.hilt.android.AndroidEntryPoint
 

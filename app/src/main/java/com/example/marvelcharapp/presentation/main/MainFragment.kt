@@ -9,6 +9,7 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.core.os.bundleOf
 import androidx.navigation.fragment.NavHostFragment
 import com.example.marvelcharapp.R
+import com.example.marvelcharapp.presentation.main.model.CharacterUIModel
 import dagger.hilt.android.AndroidEntryPoint
 
 @AndroidEntryPoint

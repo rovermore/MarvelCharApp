@@ -9,8 +9,8 @@ import com.example.marvelcharapp.domain.base.mapFailure
 import com.example.marvelcharapp.domain.character.usecase.CharacterUseCase
 import com.example.marvelcharapp.presentation.base.ErrorUI
 import com.example.marvelcharapp.presentation.base.ErrorUIMapper
-import com.example.marvelcharapp.presentation.main.CharacterUIModel
-import com.example.marvelcharapp.presentation.main.CharacterUIModelMapper
+import com.example.marvelcharapp.presentation.main.model.CharacterUIModel
+import com.example.marvelcharapp.presentation.main.model.CharacterUIModelMapper
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch

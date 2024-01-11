@@ -1,4 +1,4 @@
-package com.example.marvelcharapp.presentation.main
+package com.example.marvelcharapp.presentation.main.model
 
 import com.example.marvelcharapp.domain.character.model.CharacterDTO
 import javax.inject.Inject
