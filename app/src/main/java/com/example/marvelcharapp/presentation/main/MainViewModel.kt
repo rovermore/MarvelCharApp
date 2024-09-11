@@ -25,32 +25,32 @@ class MainViewModel @Inject constructor(
     private val errorUIMapper: ErrorUIMapper
 ) : ViewModel() {
 
-    private val _characterState = MutableStateFlow<CharactersState>(CharactersState.Loading)
+    private val _characterState = MutableStateFlow<CharactersState>(CharactersState.Initial)
     val characterState: StateFlow<CharactersState> get() = _characterState.asStateFlow()
 
-    init {
-        getCharacterList(20)
-    }
-
     fun getCharacterList(offset: Int) {
-        viewModelScope.launch(Dispatchers.IO) {
-            withContext(Dispatchers.Main) { _characterState.value = CharactersState.Loading }
-            characterUseCase.getCharacterList(offset)
-                .map {
-                    _characterState.emit(
-                        CharactersState.Success.apply {
-                            characterList.addAll(characterUIModelMapper.mapList(it))
-                        }
-                    )
-                }
-                .mapFailure {
-                    _characterState.value = CharactersState.Error(errorUIMapper.map(it))
-                }
+        viewModelScope.launch {
+            _characterState.value = CharactersState.Loading
+            withContext(Dispatchers.IO) {
+                characterUseCase.getCharacterList(offset)
+                    .map {
+                        _characterState.emit(
+                            CharactersState.Success.apply {
+                                characterList.addAll(characterUIModelMapper.mapList(it))
+                            }
+                        )
+                    }
+                    .mapFailure {
+                        _characterState.value = CharactersState.Error(errorUIMapper.map(it))
+                    }
+            }
+
         }
     }
 }
 
 sealed class CharactersState {
+    data object Initial: CharactersState()
     data object Success: CharactersState() { val characterList = mutableListOf<CharacterUIModel>() }
     data class Error(val error: ErrorUI): CharactersState()
     data object Loading: CharactersState()

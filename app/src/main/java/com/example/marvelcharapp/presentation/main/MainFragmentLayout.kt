@@ -60,7 +60,7 @@ private fun Content(
 
     Box(modifier = Modifier.fillMaxSize()) {
         when (val s = state) {
-
+            CharactersState.Initial -> fetchMoreCharacters(20)
             CharactersState.Loading -> Loader()
             
             is CharactersState.Success ->
