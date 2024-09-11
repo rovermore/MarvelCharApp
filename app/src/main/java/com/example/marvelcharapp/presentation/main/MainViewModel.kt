@@ -2,8 +2,9 @@ package com.example.marvelcharapp.presentation.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.marvelcharapp.domain.base.map
-import com.example.marvelcharapp.domain.base.mapFailure
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.map
 import com.example.marvelcharapp.domain.character.usecase.CharacterUseCase
 import com.example.marvelcharapp.presentation.base.ErrorUI
 import com.example.marvelcharapp.presentation.base.ErrorUIMapper
@@ -14,6 +15,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -28,21 +30,19 @@ class MainViewModel @Inject constructor(
     private val _characterState = MutableStateFlow<CharactersState>(CharactersState.Initial)
     val characterState: StateFlow<CharactersState> get() = _characterState.asStateFlow()
 
-    fun getCharacterList(offset: Int) {
+    fun getCharacterList() {
         viewModelScope.launch {
             _characterState.value = CharactersState.Loading
             withContext(Dispatchers.IO) {
-                characterUseCase.getCharacterList(offset)
-                    .map {
-                        _characterState.emit(
-                            CharactersState.Success.apply {
-                                characterList.addAll(characterUIModelMapper.mapList(it))
-                            }
-                        )
+                characterUseCase.getCharacterList()
+                    .cachedIn(viewModelScope)
+                    .onEmpty {
+                        _characterState.value = CharactersState.Error(ErrorUI.GenericError(""))
                     }
-                    .mapFailure {
-                        _characterState.value = CharactersState.Error(errorUIMapper.map(it))
+                    .collect {
+                        _characterState.value = CharactersState.Success( MutableStateFlow(it.map { characterDTO ->  characterUIModelMapper.map(characterDTO) }))
                     }
+
             }
 
         }
@@ -51,7 +51,7 @@ class MainViewModel @Inject constructor(
 
 sealed class CharactersState {
     data object Initial: CharactersState()
-    data object Success: CharactersState() { val characterList = mutableListOf<CharacterUIModel>() }
+    data class Success(val list: MutableStateFlow<PagingData<CharacterUIModel>>): CharactersState()
     data class Error(val error: ErrorUI): CharactersState()
     data object Loading: CharactersState()
 }

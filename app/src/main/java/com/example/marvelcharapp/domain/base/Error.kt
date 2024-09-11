@@ -1,6 +1,6 @@
 package com.example.marvelcharapp.domain.base
 
-sealed class Error(val message: String) {
+sealed class Error(override val message: String): Throwable(message) {
     class UncompletedOperation(message: String = "") : Error(message)
     class OperationCompletedWithError(message: String = ""): Error(message)
     class Unauthorized(message: String = ""): Error(message)

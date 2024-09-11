@@ -12,18 +12,9 @@ import java.lang.Exception
 class CharacterNetworkDatasource(
     private val service: CharacterService,
     private val networkExceptionsMapper: NetworkExceptionsMapper) {
-    fun getCharacterList(offset: Int): OperationResult<CatalogResponse, APIError> {
-        val call: Call<CatalogResponse> = service.getCatalogResponse(offset)
+    suspend fun getCharacterList(offset: Int): OperationResult<CatalogResponse, APIError> {
         return try {
-            val response = call.execute()
-            if (response.isSuccessful && response.body() != null) {
-                Success(response.body()!!)
-            } else {
-                val errorBody = response.errorBody()?.string() ?: ""
-                Failure(networkExceptionsMapper.mapNetworkException(
-                        response.code(),
-                        errorBody))
-            }
+            return Success(service.getCatalogResponse(offset))
         } catch (e: Exception) {
             Failure(networkExceptionsMapper.mapException(e))
         }
