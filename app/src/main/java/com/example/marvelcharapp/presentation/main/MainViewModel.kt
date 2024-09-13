@@ -2,6 +2,8 @@ package com.example.marvelcharapp.presentation.main
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
@@ -15,6 +17,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.onEmpty
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -24,7 +27,6 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(
     private val characterUseCase: CharacterUseCase,
     private val characterUIModelMapper: CharacterUIModelMapper,
-    private val errorUIMapper: ErrorUIMapper
 ) : ViewModel() {
 
     private val _characterState = MutableStateFlow<CharactersState>(CharactersState.Initial)
@@ -34,17 +36,27 @@ class MainViewModel @Inject constructor(
         viewModelScope.launch {
             _characterState.value = CharactersState.Loading
             withContext(Dispatchers.IO) {
-                characterUseCase.getCharacterList()
+                Pager(
+                    config = PagingConfig(
+                        pageSize = CharacterPagingSource.PAGE_SIZE,
+                        prefetchDistance = 25,
+                        initialLoadSize = 30
+                    ),
+                    pagingSourceFactory = {
+                        CharacterPagingSource(
+                            characterUseCase
+                        )
+                    }
+                ).flow
                     .cachedIn(viewModelScope)
                     .onEmpty {
                         _characterState.value = CharactersState.Error(ErrorUI.GenericError(""))
                     }
                     .collect {
-                        _characterState.value = CharactersState.Success( MutableStateFlow(it.map { characterDTO ->  characterUIModelMapper.map(characterDTO) }))
+                        _characterState.value = CharactersState.Success(MutableStateFlow(it.map { characterDTO ->  characterUIModelMapper.map(characterDTO) }))
                     }
 
             }
-
         }
     }
 }
