@@ -16,26 +16,21 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun Loader() {
-
     Surface(
         modifier = Modifier
             .fillMaxSize()
             .alpha(0.5f)
-    ){
-
+    ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
             CircularProgressIndicator(
                 modifier = Modifier
                     .width(32.dp)
             )
-
         }
-
     }
 }
 
