@@ -14,7 +14,7 @@ class CharacterRepositoryImpl @Inject constructor(
     private val characterResponseMapper: CharacterResponseMapper
 ): CharacterRepository {
 
-    override fun getCharacterList(offset: Int): OperationResult<List<CharacterDTO>, Error> {
+    override suspend fun getCharacterList(offset: Int): OperationResult<List<CharacterDTO>, Error> {
         return characterNetworkDatasource.getCharacterList(offset)
             .map { response ->
                 response.data?.let {

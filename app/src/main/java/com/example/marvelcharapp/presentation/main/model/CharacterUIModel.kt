@@ -1,15 +1,15 @@
-package com.example.marvelcharapp.presentation.main
+package com.example.marvelcharapp.presentation.main.model
 
 data class CharacterUIModel(
-    val id: Int,
-    val name: String,
-    val description: String,
-    val image: MarvelImageUrl?
+    val id: Int = 0,
+    val name: String = "",
+    val description: String = "",
+    val image: MarvelImageUrl = MarvelImageUrl()
 )
 
 class MarvelImageUrl(
-    val path: String,
-    val extension: String
+    val path: String = "",
+    val extension: String = ""
 ) {
     fun getImageUrl(): String {
         return path.replace("http", "https").plus("/standard_xlarge").plus(".").plus(extension)

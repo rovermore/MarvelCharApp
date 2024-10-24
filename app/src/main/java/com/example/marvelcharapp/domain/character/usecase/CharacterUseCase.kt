@@ -10,7 +10,7 @@ class CharacterUseCase @Inject constructor(
     private val characterRepository: CharacterRepository
 ) {
 
-    fun getCharacterList(offset: Int): OperationResult<List<CharacterDTO>, Error> {
+    suspend fun getCharacterList(offset: Int): OperationResult<List<CharacterDTO>, Error> {
         return characterRepository.getCharacterList(offset)
     }
 

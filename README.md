@@ -3,7 +3,7 @@ MarvelCharApp
 - Kotlin
 - Clean architecture
 - Compose (compose branch)
-- MVVM
+- MVVM  
 - Retrofit2 for network calls
 - Dagger Hilt for dependency injection
 - Coroutines for async tasks
